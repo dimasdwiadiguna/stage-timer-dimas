@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import MathText from "@/components/MathText";
 
 interface Results {
   score: number;
@@ -104,7 +105,7 @@ export default function HasilPage() {
               {results.wrong_answers.map((wa) => (
                 <div key={wa.order_index} className="bg-white rounded-2xl shadow-sm p-4">
                   <p className="text-xs font-semibold text-gray-400 mb-2">Soal {wa.order_index}</p>
-                  <p className="text-sm text-gray-800 mb-3 leading-relaxed">{wa.question_text}</p>
+                  <MathText text={wa.question_text} className="text-sm text-gray-800 mb-3 leading-relaxed block" />
                   <div className="space-y-2">
                     <div className="flex items-start gap-2 p-3 bg-red-50 rounded-xl border border-red-200">
                       <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -112,7 +113,7 @@ export default function HasilPage() {
                       </span>
                       <div>
                         <p className="text-xs text-red-500 font-medium">Jawaban kamu</p>
-                        <p className="text-sm text-red-700">{wa.chosen_text}</p>
+                        <MathText text={wa.chosen_text} className="text-sm text-red-700" />
                       </div>
                     </div>
                     <div className="flex items-start gap-2 p-3 bg-green-50 rounded-xl border border-green-200">
@@ -121,7 +122,7 @@ export default function HasilPage() {
                       </span>
                       <div>
                         <p className="text-xs text-green-500 font-medium">Jawaban benar</p>
-                        <p className="text-sm text-green-700">{wa.correct_text}</p>
+                        <MathText text={wa.correct_text} className="text-sm text-green-700" />
                       </div>
                     </div>
                   </div>
