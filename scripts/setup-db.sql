@@ -13,6 +13,8 @@ create table if not exists sessions (
   scheduled_open_at timestamptz,
   scheduled_close_at timestamptz,
   duration_minutes integer not null,
+  instruction_text text,
+  closing_text text,
   created_at timestamptz default now()
 );
 
@@ -100,3 +102,7 @@ create index if not exists idx_registrations_student_id on registrations(student
 create index if not exists idx_attempts_registration_id on attempts(registration_id);
 create index if not exists idx_answers_attempt_id on answers(attempt_id);
 create index if not exists idx_login_attempts_wa_session on login_attempts(wa_number, session_code);
+
+-- Migration: run this if upgrading an existing database
+alter table sessions add column if not exists instruction_text text;
+alter table sessions add column if not exists closing_text text;
