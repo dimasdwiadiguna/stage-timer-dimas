@@ -10,6 +10,7 @@ interface ExamSession {
   status: string;
   duration_minutes: number;
   scheduled_open_at: string | null;
+  instruction_text: string | null;
 }
 
 interface SessionInfo {
@@ -141,13 +142,17 @@ export default function TryoutPage() {
 
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
                 <p className="text-sm font-medium text-amber-800 mb-2">Petunjuk Pengerjaan:</p>
-                <ul className="text-sm text-amber-700 space-y-1">
-                  <li>• Setiap soal tampil satu per satu</li>
-                  <li>• Kamu bisa berpindah antar soal</li>
-                  <li>• Jawaban tersimpan otomatis</li>
-                  <li>• Timer berjalan setelah kamu menekan Mulai</li>
-                  <li>• Jawaban dikumpulkan otomatis saat waktu habis</li>
-                </ul>
+                {session.instruction_text ? (
+                  <p className="text-sm text-amber-700 leading-relaxed whitespace-pre-line">{session.instruction_text}</p>
+                ) : (
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• Setiap soal tampil satu per satu</li>
+                    <li>• Kamu bisa berpindah antar soal</li>
+                    <li>• Jawaban tersimpan otomatis</li>
+                    <li>• Timer berjalan setelah kamu menekan Mulai</li>
+                    <li>• Jawaban dikumpulkan otomatis saat waktu habis</li>
+                  </ul>
+                )}
               </div>
 
               <button

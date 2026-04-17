@@ -13,7 +13,7 @@ export async function GET() {
     .select(`
       id,
       students(id, name, wa_number),
-      sessions(id, name, code, status, duration_minutes, scheduled_open_at, scheduled_close_at)
+      sessions(id, name, code, status, duration_minutes, scheduled_open_at, scheduled_close_at, instruction_text, closing_text)
     `)
     .eq("id", session.registrationId)
     .single();

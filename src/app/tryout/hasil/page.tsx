@@ -23,6 +23,7 @@ export default function HasilPage() {
   const [results, setResults] = useState<Results | null>(null);
   const [studentName, setStudentName] = useState("");
   const [sessionName, setSessionName] = useState("");
+  const [closingText, setClosingText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -35,6 +36,7 @@ export default function HasilPage() {
 
       setStudentName(sessData.registration.students.name);
       setSessionName(sessData.registration.sessions.name);
+      setClosingText(sessData.registration.sessions.closing_text ?? null);
 
       const resRes = await fetch("/api/student/results");
       const resData = await resRes.json();
@@ -96,6 +98,13 @@ export default function HasilPage() {
             </div>
           </div>
         </div>
+
+        {/* Closing Text */}
+        {closingText && (
+          <div className="mt-4 bg-blue-50 border border-blue-100 rounded-2xl p-5">
+            <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{closingText}</p>
+          </div>
+        )}
 
         {/* Wrong Answers */}
         {results.wrong_answers.length > 0 && (
