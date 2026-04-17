@@ -104,7 +104,7 @@ export default function QuestionsPage() {
   }
 
   function downloadTemplate() {
-    const csv = "order_index,question_text,option_a,option_b,option_c,option_d,option_e,correct_option\n1,Contoh soal?,Opsi A,Opsi B,Opsi C,Opsi D,,A\n";
+    const csv = "order_index;question_text;option_a;option_b;option_c;option_d;option_e;correct_option\n1;Contoh soal?;Opsi A;Opsi B;Opsi C;Opsi D;;A\n";
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "template-soal.csv"; a.click();
@@ -115,7 +115,7 @@ export default function QuestionsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     Papa.parse(file, {
-      header: true, skipEmptyLines: true,
+      header: true, skipEmptyLines: true, delimiter: ";",
       complete: (result) => {
         const rows: CsvRow[] = (result.data as Record<string, string>[]).map((row) => {
           const errors: string[] = [];
