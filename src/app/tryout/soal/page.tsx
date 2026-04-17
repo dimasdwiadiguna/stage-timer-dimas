@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatTime } from "@/lib/utils";
+import MathText from "@/components/MathText";
 
 interface Question {
   id: string;
@@ -207,7 +208,7 @@ export default function SoalPage() {
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
         <p className="text-sm text-gray-400 font-medium mb-3">Soal {currentIdx + 1} dari {questions.length}</p>
         <div className="bg-white rounded-2xl p-5 shadow-sm mb-4">
-          <p className="text-base text-gray-900 leading-relaxed font-medium">{q.question_text}</p>
+          <MathText text={q.question_text} className="text-base text-gray-900 leading-relaxed font-medium" />
         </div>
 
         <div className="space-y-3">
@@ -227,7 +228,7 @@ export default function SoalPage() {
                   ${selected ? "border-blue-500 bg-blue-500 text-white" : "border-gray-300 text-gray-500"}`}>
                   {key}
                 </span>
-                <span className="text-base text-gray-800 pt-0.5">{text}</span>
+                <MathText text={text} className="text-base text-gray-800 pt-0.5" />
               </button>
             );
           })}
