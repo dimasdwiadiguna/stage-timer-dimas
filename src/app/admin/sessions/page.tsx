@@ -101,12 +101,6 @@ export default function SessionsPage() {
     setSaving(false);
   }
 
-  async function handleToggle(s: Session) {
-    const res = await fetch(`/api/admin/sessions/${s.id}/toggle`, { method: "POST" });
-    if (res.ok) { fetchSessions(); toast.success("Status sesi diperbarui"); }
-    else { const d = await res.json(); toast.error(d.error || "Gagal"); }
-  }
-
   async function handleDelete() {
     if (!deleteTarget || deleteConfirmName !== deleteTarget.name) {
       toast.error("Nama sesi tidak cocok");
@@ -153,7 +147,9 @@ export default function SessionsPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-gray-900">{s.name}</h3>
+                      <Link href={`/admin/sessions/${s.id}`} className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                        {s.name}
+                      </Link>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[s.status]}`}>
                         {statusLabels[s.status]}
                       </span>
@@ -172,27 +168,12 @@ export default function SessionsPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {s.open_mode === "manual" && s.status !== "closed" && (
-                      <button onClick={() => handleToggle(s)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
-                          ${s.status === "open"
-                            ? "bg-red-100 text-red-600 hover:bg-red-200"
-                            : "bg-green-100 text-green-700 hover:bg-green-200"}`}>
-                        {s.status === "open" ? "Tutup" : "Buka"}
-                      </button>
-                    )}
-                    <Link href={`/admin/sessions/${s.id}/questions`}
-                      className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-semibold hover:bg-gray-200">
-                      Soal
+                    <Link href={`/admin/sessions/${s.id}`}
+                      className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700">
+                      Detail
                     </Link>
-                    {s.status === "closed" && (
-                      <Link href={`/admin/sessions/${s.id}/analytics`}
-                        className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold hover:bg-purple-200">
-                        Analitik
-                      </Link>
-                    )}
                     <button onClick={() => openEdit(s)}
-                      className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-100">
+                      className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-semibold hover:bg-gray-200">
                       Edit
                     </button>
                     <button onClick={() => { setDeleteTarget(s); setDeleteConfirmName(""); }}

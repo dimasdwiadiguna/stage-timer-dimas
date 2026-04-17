@@ -33,7 +33,8 @@ export default function SoalPage() {
   const router = useRouter();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const autoSubmitted = useRef(false);
-  const navigatorRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const desktopNavRef = useRef<HTMLDivElement>(null);
 
   const doSubmit = useCallback(async () => {
     if (autoSubmitted.current) return;
@@ -133,10 +134,13 @@ export default function SoalPage() {
 
   function jumpToQuestion(idx: number) {
     setCurrentIdx(idx);
-    if (navigatorRef.current) {
-      const pill = navigatorRef.current.querySelector(`[data-idx="${idx}"]`);
-      pill?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    }
+    // Scroll active pill into view in whichever navigator is visible
+    [mobileNavRef, desktopNavRef].forEach((ref) => {
+      if (ref.current) {
+        const pill = ref.current.querySelector(`[data-idx="${idx}"]`);
+        pill?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+    });
   }
 
   async function handleSubmit() {
@@ -178,15 +182,36 @@ export default function SoalPage() {
   ];
   const isLowTime = timeLeft !== null && timeLeft < 300;
 
+  const navPills = questions.map((question, idx) => {
+    const isAnswered = !!answers[question.id];
+    const isActive = idx === currentIdx;
+    return (
+      <button
+        key={question.id}
+        data-idx={idx}
+        onClick={() => jumpToQuestion(idx)}
+        className={`w-10 h-10 rounded-xl text-sm font-bold border-2 transition-all flex-shrink-0
+          ${isActive
+            ? "border-blue-600 bg-blue-600 text-white shadow-md"
+            : isAnswered
+              ? "border-green-400 bg-green-50 text-green-700"
+              : "border-gray-200 bg-gray-100 text-gray-500"
+          }`}
+      >
+        {idx + 1}
+      </button>
+    );
+  });
+
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col max-w-lg mx-auto">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Sticky Top Bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3">
-          <p className="font-semibold text-gray-800 text-sm truncate max-w-[45%]">{sessionName}</p>
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 lg:px-6">
+          <p className="font-semibold text-gray-800 text-sm truncate max-w-[50%]">{sessionName}</p>
           <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-1 font-mono font-bold text-lg ${isLowTime ? "text-red-600" : "text-gray-700"}`}>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`flex items-center gap-1.5 font-mono font-bold text-lg ${isLowTime ? "text-red-600" : "text-gray-700"}`}>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -204,83 +229,93 @@ export default function SoalPage() {
         </div>
       </div>
 
-      {/* Question Area */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
-        <p className="text-sm text-gray-400 font-medium mb-3">Soal {currentIdx + 1} dari {questions.length}</p>
-        <div className="bg-white rounded-2xl p-5 shadow-sm mb-4">
-          <MathText text={q.question_text} className="text-base text-gray-900 leading-relaxed font-medium" />
+      {/* Body: question area + desktop sidebar */}
+      <div className="flex flex-1 max-w-7xl mx-auto w-full">
+
+        {/* Question Area */}
+        <div className="flex-1 px-4 pt-4 pb-36 lg:pb-8 lg:px-8 overflow-y-auto">
+          <p className="text-sm text-gray-400 font-medium mb-3">Soal {currentIdx + 1} dari {questions.length}</p>
+          <div className="bg-white rounded-2xl p-5 shadow-sm mb-4 max-w-2xl">
+            <MathText text={q.question_text} className="text-base text-gray-900 leading-relaxed font-medium" />
+          </div>
+
+          <div className="space-y-3 max-w-2xl">
+            {options.map(({ key, text }) => {
+              const selected = answers[q.id] === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => saveAnswer(q.id, key)}
+                  className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all min-h-[56px]
+                    ${selected
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                    }`}
+                >
+                  <span className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center text-sm font-bold
+                    ${selected ? "border-blue-500 bg-blue-500 text-white" : "border-gray-300 text-gray-500"}`}>
+                    {key}
+                  </span>
+                  <MathText text={text} className="text-base text-gray-800 pt-0.5" />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Navigation buttons */}
+          <div className="flex gap-3 mt-6 max-w-2xl">
+            <button
+              onClick={() => jumpToQuestion(currentIdx - 1)}
+              disabled={currentIdx === 0}
+              className="flex-1 border-2 border-gray-300 text-gray-600 py-4 rounded-xl font-semibold text-base
+                hover:border-gray-400 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed min-h-[52px]"
+            >
+              ← Sebelumnya
+            </button>
+            <button
+              onClick={() => jumpToQuestion(currentIdx + 1)}
+              disabled={currentIdx === questions.length - 1}
+              className="flex-1 border-2 border-blue-500 text-blue-600 py-4 rounded-xl font-semibold text-base
+                hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed min-h-[52px]"
+            >
+              Selanjutnya →
+            </button>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          {options.map(({ key, text }) => {
-            const selected = answers[q.id] === key;
-            return (
-              <button
-                key={key}
-                onClick={() => saveAnswer(q.id, key)}
-                className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all min-h-[56px]
-                  ${selected
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                  }`}
-              >
-                <span className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center text-sm font-bold
-                  ${selected ? "border-blue-500 bg-blue-500 text-white" : "border-gray-300 text-gray-500"}`}>
-                  {key}
-                </span>
-                <MathText text={text} className="text-base text-gray-800 pt-0.5" />
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Navigation buttons */}
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={() => jumpToQuestion(currentIdx - 1)}
-            disabled={currentIdx === 0}
-            className="flex-1 border-2 border-gray-300 text-gray-600 py-4 rounded-xl font-semibold text-base
-              hover:border-gray-400 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed min-h-[52px]"
-          >
-            ← Sebelumnya
-          </button>
-          <button
-            onClick={() => jumpToQuestion(currentIdx + 1)}
-            disabled={currentIdx === questions.length - 1}
-            className="flex-1 border-2 border-blue-500 text-blue-600 py-4 rounded-xl font-semibold text-base
-              hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed min-h-[52px]"
-          >
-            Selanjutnya →
-          </button>
+        {/* Desktop Right Sidebar Navigator */}
+        <div className="hidden lg:flex flex-col w-64 xl:w-72 border-l border-gray-200 bg-white sticky top-[57px] h-[calc(100vh-57px)]">
+          <div className="p-4 border-b border-gray-100">
+            <p className="text-sm font-semibold text-gray-700">Navigator Soal</p>
+            <p className="text-xs text-gray-400 mt-0.5">{answeredCount} / {questions.length} dijawab</p>
+          </div>
+          <div ref={desktopNavRef} className="flex-1 overflow-y-auto p-4">
+            <div className="grid grid-cols-5 gap-2">
+              {navPills}
+            </div>
+          </div>
+          {/* Legend */}
+          <div className="p-3 border-t border-gray-100 flex gap-3 text-xs text-gray-400 flex-wrap">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded bg-gray-200 border border-gray-300 flex-shrink-0" /> Belum
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded bg-green-100 border border-green-400 flex-shrink-0" /> Dijawab
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded bg-blue-600 flex-shrink-0" /> Aktif
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Bottom Navigator */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg max-w-lg mx-auto">
+      {/* Mobile Bottom Navigator (hidden on desktop) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg lg:hidden">
         <div className="px-4 pt-3 pb-1">
           <p className="text-xs text-gray-400 mb-2">Navigator Soal • {answeredCount}/{questions.length} dijawab</p>
         </div>
-        <div ref={navigatorRef} className="flex gap-2 px-4 pb-4 overflow-x-auto scrollbar-hide pb-safe">
-          {questions.map((question, idx) => {
-            const isAnswered = !!answers[question.id];
-            const isActive = idx === currentIdx;
-            return (
-              <button
-                key={question.id}
-                data-idx={idx}
-                onClick={() => jumpToQuestion(idx)}
-                className={`flex-shrink-0 w-10 h-10 rounded-xl text-sm font-bold border-2 transition-all
-                  ${isActive
-                    ? "border-blue-600 bg-blue-600 text-white shadow-md"
-                    : isAnswered
-                      ? "border-green-400 bg-green-50 text-green-700"
-                      : "border-gray-200 bg-gray-100 text-gray-500"
-                  }`}
-              >
-                {idx + 1}
-              </button>
-            );
-          })}
+        <div ref={mobileNavRef} className="flex gap-2 px-4 pb-4 overflow-x-auto pb-safe">
+          {navPills}
         </div>
       </div>
 
@@ -313,6 +348,6 @@ export default function SoalPage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

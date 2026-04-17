@@ -101,7 +101,8 @@ Buka [http://localhost:3000](http://localhost:3000)
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key — **RAHASIA**, hanya di server |
 | `ADMIN_USERNAME` | Username login admin |
 | `ADMIN_PASSWORD_HASH` | Bcrypt hash dari password admin |
-| `ADMIN_WA_NUMBER` | Nomor WA admin untuk link WhatsApp siswa (format: 628xxx) |
+| `ADMIN_WA_NUMBER` | Nomor WA admin (server-side, format: 628xxx) |
+| `NEXT_PUBLIC_ADMIN_WA_NUMBER` | Nomor WA admin (client-side, **isi nilai yang sama** dengan `ADMIN_WA_NUMBER`) |
 | `SESSION_SECRET` | String acak 32 karakter untuk enkripsi cookie iron-session |
 | `NEXT_PUBLIC_APP_URL` | URL publik aplikasi (tanpa trailing slash) |
 
